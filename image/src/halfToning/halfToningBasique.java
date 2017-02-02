@@ -6,7 +6,12 @@ import java.awt.image.BufferedImage;
 
 /**
  * Converti l image en grille de couleurs CYMB 
- * augmente la taille de image par 4
+ * augmente la taille de image par 4 
+ * chaque quadruplet de pixels contient les valeurs suivantes
+ * 			haut gauche : cyan
+ * 			bas gauche : jaune
+ * 			haut droit : magenta
+ * 			bas droit : noir
  * @author dinar
  *
  */

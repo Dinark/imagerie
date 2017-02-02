@@ -1,5 +1,5 @@
 
-
+TP1
 
 La recherche du camion se base sur deux faits 
 
@@ -12,3 +12,10 @@ La recherche du camion se base sur deux faits
 		Dans un premier temps, on fait une simplification des bordures de limage avec le moins de couleurs possibles
 		Si dans ces bordures on obtient un forme rectanglaire on a de forte chance avoir un camion
 	
+	
+TP2 HalfToning
+
+	L'exercice de HalfToning est effectué par le package éponyme 
+	
+
+		
