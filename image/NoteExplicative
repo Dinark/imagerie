@@ -1,0 +1,14 @@
+
+
+
+La recherche du camion se base sur deux faits 
+
+	Le camion est sur un route ( difference de couleur entre le fond et camion)
+	la route etant generalement plus sombre que le camion ( la luminense l'est egalement)
+	Le camion est de forme rectangulaire
+	
+	
+	l'operation est faite en deux temps 
+		Dans un premier temps, on fait une simplification des bordures de limage avec le moins de couleurs possibles
+		Si dans ces bordures on obtient un forme rectanglaire on a de forte chance avoir un camion
+	
