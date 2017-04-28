@@ -5,11 +5,11 @@ import java.awt.image.BufferedImage;
 public interface IStenagographie {
 	
 	
+
+	public BufferedImage Steganofer(BufferedImage img, byte[] data);
 	
-	public BufferedImage Steganofer(BufferedImage Amasque,BufferedImage cible);
 	
-	
-	public BufferedImage DeSteganofer(BufferedImage cible);
+	public byte[] DeSteganofer(BufferedImage img);
 
 
 }

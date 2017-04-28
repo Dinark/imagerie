@@ -5,92 +5,128 @@ import java.awt.image.BufferedImage;
 
 public class Stenagographie implements IStenagographie{
 	
-	
-	//Doit etre entre 0 et 8
-	//0 ou 8 extreme rersultat non probant
-	// pour 1 Fort steganographie faible qualite de limage cache
-	// pour 7 Faible steganographie (image tres visible) forte qualite de limage cache
+
+	// On cache dans Chaques couleurs de pixel (rgb) un octet de donnée. (2 + 3 + 3)
+	private static int RBIT = 2;
+	private static int GBIT = 3;
+	private static int BBIT = 3;
 
 	private static int BITWISEMOVE = 3;
 
 	@Override
-	public BufferedImage Steganofer(BufferedImage aMasque, BufferedImage cible)  {
-
-		if(aMasque.getWidth() < cible.getWidth() || aMasque.getHeight() < cible.getHeight())
+	public BufferedImage Steganofer(BufferedImage img, byte[] data)
+	{
+		int width = img.getWidth();
+		int height = img.getHeight();
+		int mult = 1;
+		while(width * height < data.length + 10) // we need an image capable of holding the data
 		{
-			throw new ExceptionInInitializerError("l image a mettre");
-		}	
-		Color  ciblebyte[][] = new Color[cible.getWidth()][cible.getHeight()];
-		//Color  aMasquebyte[][] = new Color[aMasque.getWidth()][aMasque.getHeight()];
-
-
-
-		//
-		for(int i = 0 ; i < cible.getWidth(); i++)
-		{
-			for(int j = 0 ; j< cible.getHeight();j++)
-			{
-				Color inter = new Color(cible.getRGB(i, j));
-				int red = (inter.getRed() >> (8-BITWISEMOVE)) ;
-				int blu = (inter.getBlue() >> (8-BITWISEMOVE));
-				int green = (inter.getGreen() >> (8-BITWISEMOVE));;
-				ciblebyte[i][j] = new Color(red,green,blu);
-				
-			}
-
-			}
-		BufferedImage res = new BufferedImage(aMasque.getWidth(), aMasque.getHeight(),BufferedImage.TYPE_INT_ARGB);
+			mult *= 2;
+			width = mult * img.getWidth();
+			height = mult * img.getHeight();
+			
+			if(width * height > 8192*8192)
+				throw new ExceptionInInitializerError("file too large");
+		}
+		BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		
+		byte[] dataLength = new byte[4]; // 4 bytes in an int
+        int dataLengthInt = data.length;
+        for (int i = 3; i >= 0; i--)
+        {
+        	dataLength[i] = (byte)dataLengthInt; // store 1 byte in the byte array
+        	dataLengthInt = dataLengthInt >> 8;  // and then right shift by 8 bits to get the next byte in position
+        }
 		
-		for(int i = 0 ; i < aMasque.getWidth(); i++)
+		boolean lengthInput = true;
+		int k = 0;
+		
+		for(int i = 0 ; i < width; i++)
 		{
-			for(int j = 0 ; j< aMasque.getHeight();j++)
+			for(int j = 0 ; j< height;j++)
 			{
-				Color inter = new Color(aMasque.getRGB(i, j));
-				int red = (inter.getRed() >> BITWISEMOVE) << BITWISEMOVE;
-				int blu = (inter.getBlue() >> BITWISEMOVE) << BITWISEMOVE;
-				int green = (inter.getGreen() >> BITWISEMOVE) << BITWISEMOVE;;
+				Color inter = new Color(img.getRGB(i/mult, j/mult));//the new image is bigger by mult times.
+				int red = (inter.getRed() >> RBIT) << RBIT;
+				int green = (inter.getGreen() >> GBIT) << GBIT;
+				int blue = (inter.getBlue() >> BBIT) << BBIT;
+				int toRed = 0, toGreen = 0, toBlue = 0;
 				
-				if(i < cible.getWidth() && j < cible.getHeight())
+				if(lengthInput)
 				{
-					red += ciblebyte[i][j].getRed();
-					green += ciblebyte[i][j].getGreen();
-					blu += ciblebyte[i][j].getBlue();
+					toRed = (dataLength[k]) >> (8 - RBIT);
+					toGreen = (((dataLength[k]&(1<<(GBIT + BBIT))-1))) >> BBIT;
+					toBlue = (((dataLength[k]&(1<<BBIT)-1)));
+					++k;
+					if(k >= 4)
+					{
+						k = 0;
+						lengthInput = false;
+					}
 				}
-				
-				
-				 res.setRGB(i, j, new Color(red,green,blu).getRGB() );
-				
-
-			}
-		}		
-		return res;
+				else
+				{
+					if(k < data.length)
+					{
+						toRed = (data[k]) >> (8 - RBIT);
+						toGreen = (((data[k]&(1<<(GBIT + BBIT))-1))) >> BBIT;
+						toBlue = (((data[k]&(1<<BBIT)-1)));
+						++k;
+					}
+				}
+				if(toRed < 0)
+					toRed = (int)Math.pow(2,  (RBIT-1)) + (int)(Math.pow(2,  (RBIT-1)) + toRed); 
+				if(toBlue < 0)
+					toBlue = (int)Math.pow(2,  (RBIT-1)) + (int)(Math.pow(2,  (RBIT-1)) + toBlue); 
+				if(toGreen < 0)
+					toGreen = (int)Math.pow(2,  (RBIT-1)) + (int)(Math.pow(2,  (RBIT-1)) + toGreen); 
+				red += toRed;
+				green += toGreen;
+				blue += toBlue;
+				result.setRGB(i, j, new Color(red,green,blue).getRGB());
+			}			
+		}
+		return result;
 	}
 
 	@Override
-	public BufferedImage DeSteganofer(BufferedImage cible) {
-		
-		BufferedImage res = new BufferedImage(cible.getWidth(), cible.getHeight()
-				,BufferedImage.TYPE_INT_ARGB);
+	public byte[] DeSteganofer(BufferedImage img)
+	{		
+		byte[] data = new byte[0];
+		int dataLength = 0;
+		boolean lengthOutput = true;
+		int k = 4;
 
-		for(int i = 0 ; i<cible.getWidth();i++)
+		for(int i = 0 ; i < img.getWidth();i++)
 		{
-			for(int j = 0 ; j < cible.getHeight() ; j++)
+			for(int j = 0 ; j < img.getHeight() ; j++)
 			{
-				Color inter = new Color(cible.getRGB(i, j));
-				int red = (inter.getRed() << (8-BITWISEMOVE)) % 256 ;
-				int blu = (inter.getBlue() << (8-BITWISEMOVE)) % 256 ;
-				int green = (inter.getGreen() << (8-BITWISEMOVE)) % 256 ;;
+				Color inter = new Color(img.getRGB(i, j));
+				int redBits = (((inter.getRed()&(1<<RBIT)-1)));
+				int greenBits = (((inter.getGreen()&(1<<GBIT)-1)));
+				int blueBits = (((inter.getBlue()&(1<<BBIT)-1)));
+				byte dataByte = (byte)((redBits << (GBIT + BBIT)) + (greenBits << BBIT) + blueBits);
 				
-				
-				 res.setRGB(i, j, new Color(red,green,blu).getRGB() );
-
+				if(lengthOutput)
+				{
+					dataLength <<= 8;
+					dataLength += 0xFF & dataByte;
+					--k;
+					if(k <= 0)
+					{
+						data = new byte[dataLength];
+						lengthOutput = false;
+					}					
+				}
+				else
+				{
+					if(k < dataLength)
+					{
+						data[k] = dataByte;
+						++k;
+					}
+				}
 			}
 		}
-		
-		
-		return res;
-
-
+		return data;
 	}
 }
