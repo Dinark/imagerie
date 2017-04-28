@@ -8,8 +8,6 @@ public interface ISoundSteganographe {
 	
 	public File encode(String masquePath,String targetPath,String resultPath) throws IOException ;
 	
-	
-	public File decode(String masquePath);
-	
 
+	public File decode(String masquePath, String resultPath) throws IOException;
 }

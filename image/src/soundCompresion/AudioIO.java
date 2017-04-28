@@ -14,9 +14,9 @@ import javax.sound.sampled.AudioSystem;
 public class AudioIO {
 
 
-	public static void saveFile(byte[] sound ,String fileName, AudioFileFormat type, AudioFormat audFormat )
+	public static void saveFile(byte[] sound ,String fileName, AudioFileFormat.Type type, AudioFormat audFormat )
 	throws FileAlreadyExistsException{
-		
+	
 		if(new File(fileName).exists())
 		{
 			throw new FileAlreadyExistsException(fileName);
@@ -27,14 +27,16 @@ public class AudioIO {
 			ByteArrayInputStream bais = new ByteArrayInputStream(sound);
 			AudioInputStream ais = new AudioInputStream(bais, audFormat, sound.length);
 		
-			AudioSystem.write(ais, type.getType(), new File(fileName));
+			AudioSystem.write(ais, type, new File(fileName));
 		
 		
+			 
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
+		
 		
 		
 	}
@@ -121,12 +123,7 @@ public class AudioIO {
 			e.printStackTrace();
 			
 		}
-		finally {
-			if(ais != null)
-			{
-				ais.close();
-			}
-		}
+		
 
 
 
