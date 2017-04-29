@@ -20,11 +20,12 @@ public class mainSoundTest {
 
 		//String fileMusique = "ressources/audioclip2.wav";
 
-		String fileCible = "ressources/test.txt";
+		//String fileCible = "ressources/test.txt";
 		//String fileCible = "ressources/toto.pdf";
 		//String fileCible = "ressources/camion.jpeg";
 		//String fileCible = "ressources/invasionzombie.png";
 		//String fileCible = "ressources/audioclip.wav";
+		String fileCible = "ressources/eclipse-installer.tar";
 
         //String fileCible = "ressources/song_game.ogg";
 
@@ -54,6 +55,7 @@ public class mainSoundTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		/*
 		try {
 			((SoundStenagographe) stegano).comparaison(Files.readAllBytes(new File(fileCible).toPath()),Files.readAllBytes(new File(fileResultDecode).toPath()));

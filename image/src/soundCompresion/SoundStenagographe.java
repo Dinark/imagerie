@@ -135,15 +135,31 @@ public class SoundStenagographe implements ISoundSteganographe {
        
         // encodedData[] & 1 results in the least significant bit.
         // Add that bit to the decoded data and then left shift to prepare for the next bit
-        messageLength += audioData[0] & 1;
+        /*messageLength += audioData[0] & 1;
         for (int i = 1; i < 32; i++)
         {
                 messageLength <<= 1;
                 messageLength += audioData[i] & 1;
         }
+        */
+        byte[] load = new byte[4];
+        for(int i  = 3; i >=0 ;i-- )
+        {
+        	load[i] += audioData[i*8] & 1;
+        	for(int j = 7 ; j >=0; j-- )
+        	{
+        		  load[i] <<= 1;
+        		  load[i] += audioData[i*8+j] & 1;
+        	}
+        }
+        
+        messageLength= (load[0]<<24)&0xff000000|
+        	       (load[1]<<16)&0x00ff0000|
+        	       (load[2]<< 8)&0x0000ff00|
+        	       (load[3]<< 0)&0x000000ff;
+        
+        
          
-       
-        //messageLength = msglength;
         System.err.println("Taille message calcul:"+messageLength);
         byte[] data = new byte[messageLength];
         int dataIndex = 0;
