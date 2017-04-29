@@ -229,7 +229,7 @@ public class SoundStenagographe implements ISoundSteganographe {
 			if(a[i] != b[i])
 			{
 
-				//System.err.println("erreur [" +i+"]"+a[i]+" "+b[i]  );
+				System.err.println("erreur [" +i+"]"+a[i]+" "+b[i]  );
 			}
 		}
 		
