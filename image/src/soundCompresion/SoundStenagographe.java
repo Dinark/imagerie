@@ -19,6 +19,7 @@ public class SoundStenagographe implements ISoundSteganographe {
 
 
 	public  int bitwise = 1;
+	public int msglength =0;
 
 
 	public  SoundStenagographe(int bitwise) {
@@ -69,6 +70,7 @@ public class SoundStenagographe implements ISoundSteganographe {
 		}*/
 
 		byte[] musicToWork = increaseMusicLenght(message.length ,masqueBytes);
+		msglength = message.length;
 
 		this.LSBencode(messageLength, musicToWork, 0);
 		this.LSBencode(message.clone(), musicToWork, 32);
@@ -139,14 +141,16 @@ public class SoundStenagographe implements ISoundSteganographe {
                 messageLength <<= 1;
                 messageLength += audioData[i] & 1;
         }
+         
        
-        //messageLength = 213;
+        //messageLength = msglength;
         System.err.println("Taille message calcul:"+messageLength);
         byte[] data = new byte[messageLength];
-        for (int audioIndex = 32, dataIndex = 0;/*dataIndex < messageLength*/ audioIndex < messageLength + 32; audioIndex+=8, dataIndex++)
+        int dataIndex = 0;
+        for (int audioIndex = 32 ;dataIndex < messageLength /*audioIndex < messageLength + 32*/; audioIndex+=8, dataIndex++)
         {
-                data[dataIndex] += audioData[audioIndex+8] & 1;
-                for (int i = 7; i >= 0; i--)
+                data[dataIndex] += audioData[audioIndex+7] & 1;
+                for (int i = 6; i >= 0; i--)
                 {
                         data[dataIndex] <<= 1;
                         data[dataIndex] += audioData[audioIndex + i] & 1;
@@ -154,17 +158,18 @@ public class SoundStenagographe implements ISoundSteganographe {
                
                 //System.err.println("Byte " + dataIndex + " : " + data[dataIndex]);
         }
-       
+        System.out.println("indexMsg :"+dataIndex );
+
         return data;
 	}
 
 	public void LSBencode(byte[] message, byte[] audioData, int startIndex)
 	{
-		
-        for (int audioDataIndex = startIndex, messageIndex = 0; messageIndex < message.length; audioDataIndex+=8, messageIndex++)
+		int messageIndex = 0;
+        for (int audioDataIndex = startIndex; messageIndex < message.length; audioDataIndex+=8, messageIndex++)
             for (int j = 0; j < 8; j++)
             {
-                    // System.err.println((audioData[audioDataIndex+j] & ~1) ^ (message[messageIndex] & 1));
+                    //System.err.println((audioData[audioDataIndex+j] & ~1) ^ (message[messageIndex] & 1));
                     // (message[messageIndex] & 1) gets the least significant bit of the message
                     // (audioData[audioDataIndex+j] & ~1) gets all of the non-least significant bits of the audioData
                     // Then they are XORed together to combine them
@@ -172,6 +177,7 @@ public class SoundStenagographe implements ISoundSteganographe {
                     message[messageIndex] >>= 1;
             }
 
+        System.out.println("indexMsg :"+messageIndex );
 	}
 
 
@@ -179,7 +185,7 @@ public class SoundStenagographe implements ISoundSteganographe {
 	
 	private byte[] increaseMusicLenght(int tailleMessage,byte[] musiqueold)
 	{
-		if(tailleMessage*8+32 < musiqueold.length)
+		if(tailleMessage*8+32 <= musiqueold.length)
 		{
 			return musiqueold;
 		}
@@ -210,8 +216,23 @@ public class SoundStenagographe implements ISoundSteganographe {
 
 
 
+
 	public  void setBitwise(int bitwise) {
 		this.bitwise = bitwise;
+	}
+	
+	
+	public void comparaison ( byte[] a,byte[] b )
+	{
+		for(int i = 0 ; i < a.length ; i++)
+		{
+			if(a[i] != b[i])
+			{
+
+				//System.err.println("erreur [" +i+"]"+a[i]+" "+b[i]  );
+			}
+		}
+		
 	}
 
 }
