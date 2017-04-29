@@ -217,6 +217,7 @@ public class AudioIO {
 			if(fileSource.exists())
 			{
 				ais = AudioSystem.getAudioInputStream(fileSource);
+				
 				//res = new byte[ais.available()];
 				
 				//ais.read(res);

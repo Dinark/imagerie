@@ -19,10 +19,18 @@ public class mainSoundTest {
 
 		//String fileMusique = "ressources/audioclip2.wav";
 
-		String fileCible = "ressources/test.txt";
-		
+		//String fileCible = "ressources/test.txt";
+		//String fileCible = "ressources/toto.pdf";
+		//String fileCible = "ressources/camion.jpeg";
+		//String fileCible = "ressources/invasionzombie.png";
+		//String fileCible = "ressources/audioclip.wav";
+
+        String fileCible = "ressources/song_game.ogg";
+
+
+
 		String fileResult = "ressources/simonTest.wav";
-		//String fileResult = "ressources/simonTest.mp3";
+		String fileResultDecode = "ressources/sim";
 
 		File output = new File(fileResult);
 		if(output.exists())
@@ -30,7 +38,7 @@ public class mainSoundTest {
 			output.delete();
 		}
 
-		String fileResultDecode = "ressources/sim";
+		
 		
 		try {
 			stegano.encode(fileMusique, fileCible, fileResult);
